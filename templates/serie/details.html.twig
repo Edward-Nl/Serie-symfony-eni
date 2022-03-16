@@ -1,12 +1,18 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}
-todo: Afficher le titre de la serie | {{ parent() }}
+{{ serie.name}} | {{ parent() }}
 {% endblock %}
 
 {% block body %}
-<h2>Todo: afficher le titre de la serie</h2>
+    <h2>{{ serie.name }}</h2>
+    <div><strong>Description : </strong>{{ serie.overview }}</div>
+    <div><strong>Note : </strong>{{ serie.vote }}</div>
+    <div><strong>Première difusion : </strong>{{ serie.firstAirDate|date("d/m/Y","Europe/Paris") }}</div>
+    <div><strong>Dernière diffusion : </strong>{{ serie.lastAirDate|date("d/m/Y","Europe/Paris") }}</div>
+    <div><strong>Genre(s) : </strong>{{ serie.genres }}</div>
+    <div><strong>Status : </strong>{{ serie.status }}</div>
+    <div><strong>Popularité : </strong>{{ serie.popularity }}</div>
 
-    {# Afficher toute les infos de la serie #}
 {% endblock %}
 
