@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Serie;
+use App\Form\SerieType;
 use App\Repository\SerieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,6 +35,10 @@ class SerieController extends AbstractController
     {
         $serie = $serieRepository->find($id);
 
+        if (!$serie){
+            throw $this->createNotFoundException('Oh no ! This series does not exist');
+        }
+
         return $this->render('serie/details.html.twig', [
             "serie" => $serie
         ]);
@@ -42,52 +47,43 @@ class SerieController extends AbstractController
     /**
      * @Route("/create", name="create")
      */
-    public function create(Request $request): Response
+    public function create(Request $request, EntityManagerInterface $entityManager): Response
     {
-        //dump("yo");
-        dump($request);
+        //Creation et affichage du formulaire
+        $serie = new Serie();
+        //On ajoute la date acutuel pour  la date de creation
+        $serie->setDateCreated(new \DateTime());
+        $serieForm = $this->createForm(SerieType::class, $serie);
+
+
+        //Traitement du formulaire le formulaire
+        $serieForm->handleRequest($request);
+
+        //Si le formulaire a été soumis
+        if ($serieForm->isSubmitted() && $serieForm->isValid()){
+            $entityManager->persist($serie);
+            $entityManager->flush();
+
+            //Ajout du message flash
+            $this->addFlash('success', 'Serie added! Good Job.');
+            return $this->redirectToRoute('serie_details', ['id' => $serie->getId()]);
+        }
+
+        //Return vers le Twig avec le formulaire crée en parametre
         return $this->render('serie/create.html.twig', [
+            'serieForm' => $serieForm->createView()
         ]);
     }
 
     /**
-     * @Route("/demo", name="em-demo")
+     * @Route("/delete/{id}", name="delete")
      */
-    public function demo(EntityManagerInterface $entityManager): Response
-    {
-        //Crée une instance
-        $serie = new Serie();
-
-        //hydrate toutes les propriété
-        $serie->setName('pif');
-        $serie->setBackdrop('dafsd');
-        $serie->setPoster('dafsd');
-        $serie->setDateCreated(new \DateTime());
-        $serie->setFirstAirDate(new \DateTime("-1 year"));
-        $serie->setLastAirDate(new \DateTime("-6 month"));
-        $serie->setGenres("drama");
-        $serie->setOverview("bla bla bla bla");
-        $serie->setPopularity(123.00);
-        $serie->setVote(8.2);
-        $serie->setStatus("Canceled");
-        $serie->setTmdbId(329432);
-
-        dump($serie);
-
-        //$entityManager = $this->getDoctrine()->getManager();
-
-        $entityManager->persist($serie);
-        $entityManager->flush();
-
-        dump($serie);
-
-        $serie->setGenres("comedy");
-        $entityManager->flush();
-
+    public function delete(Serie $serie, EntityManagerInterface $entityManager){
         $entityManager->remove($serie);
         $entityManager->flush();
 
+        $this->addFlash('success', 'Serie delete !');
 
-        return $this->render('serie/create.html.twig');
+        return $this->redirectToRoute('main_home');
     }
 }

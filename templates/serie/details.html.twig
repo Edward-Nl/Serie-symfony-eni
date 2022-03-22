@@ -5,14 +5,44 @@
 {% endblock %}
 
 {% block body %}
-    <h2>{{ serie.name }}</h2>
-    <div><strong>Description : </strong>{{ serie.overview }}</div>
-    <div><strong>Note : </strong>{{ serie.vote }}</div>
-    <div><strong>Première difusion : </strong>{{ serie.firstAirDate|date("d/m/Y","Europe/Paris") }}</div>
-    <div><strong>Dernière diffusion : </strong>{{ serie.lastAirDate|date("d/m/Y","Europe/Paris") }}</div>
-    <div><strong>Genre(s) : </strong>{{ serie.genres }}</div>
-    <div><strong>Status : </strong>{{ serie.status }}</div>
-    <div><strong>Popularité : </strong>{{ serie.popularity }}</div>
+    <div class="serie-details">
+        <div>
+            <img src="{{ asset('img/posters/series/' ~ serie.poster) }}" alt="{{ serie.name }}">
+        </div>
+        <div class="serie-details-infos">
+            <h2>{{ serie.name }}</h2>
+            <div>User ratings : {{ serie.vote }} /10</div>
+            <div>Categorized in : {{ serie.genres }}</div>
+            <div>Serie status : {{ serie.status }}</div>
+            <div>Aired from {{ serie.firstAirDate|format_datetime(pattern="EEEE d MMMM Y", locale='fr') }} to {{ serie.lastAirDate|format_datetime(pattern="EEEE d MMMM Y", locale='fr') }}</div>
+            <div>{{ serie.overview|nl2br }}</div>
 
+            <section class="seasons">
+                <h3>Seasons</h3>
+                {% for season in serie.seasons %}
+                    <article>
+                        <img src="{{ asset('img/posters/seasons/' ~ season.poster) }}" alt="{{ serie.name }} season #{{ season.number }}">
+                        <div>
+                            <h4>Season {{ season.number }}</h4>
+                            {% if(season.overview) %}
+                                <div>{{ season.overview }}</div>
+                            {% endif %}
+                        </div>
+
+                    </article>
+                {% endfor %}
+            </section>
+
+            <a href="{{ path('serie_delete', {'id': serie.id}) }}" title="Delete this Serie">Delete this serie</a>
+        </div>
+
+    </div>
+{% endblock %}
+{% block extrastyles %}
+    <style>
+        body{
+            background-image: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.7)), url("{{ asset('img/backdrops/' ~ serie.backdrop) }}");
+        }
+    </style>
 {% endblock %}
 

@@ -1,6 +1,9 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Coucou</h1>
+    <h1>This is the homePage of the application Series!</h1>
+    {% if(app.user) %}
+    <h2>Welcome {{ app.user.firstname }} {{ app.user.lastname }}</h2>
+    {% endif %}
 {% endblock %}
 {% block title %}{{ parent()}} | Home{% endblock %}
